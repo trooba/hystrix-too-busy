@@ -1,0 +1,39 @@
+{
+  "name": "hystrix-too-busy",
+  "version": "0.1.0",
+  "description": "Provides a backpressure management hystrix command partially based on too-busy module logic and utilizing hystrix metrics accumulation and circuit breaking",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test",
+    "test-coverage": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --  --timeout 4s -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trooba/hystrix-too-busy.git"
+  },
+  "keywords": [
+    "toobusy",
+    "too-busy",
+    "hystrix",
+    "hystrixjs",
+    "trooba",
+    "backpressure",
+    "pressure"
+  ],
+  "author": "Dmytro Semenov <dimichsdg@yahoo.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trooba/hystrix-too-busy/issues"
+  },
+  "homepage": "https://github.com/trooba/hystrix-too-busy#readme",
+  "dependencies": {
+    "hystrixjs": "^0.2.0",
+    "rxjs": "^5.4.0",
+    "toobusy-js": "^0.5.1"
+  },
+  "devDependencies": {
+    "async": "^2.4.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.4.2"
+  }
+}
