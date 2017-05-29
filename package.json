@@ -35,5 +35,8 @@
     "async": "^2.4.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.4.2"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   }
 }

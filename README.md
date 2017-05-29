@@ -55,3 +55,21 @@ Since this module is based on both too-busy and hystrixjs you need to understand
     * statisticalWindowLength (default 10000) defines statistical window in milliseconds.
     * percentileWindowNumberOfBuckets (default 6) defines a number of buckets to calculate percentile stats.
     * percentileWindowLength (default 60000) defines percentile window length in milliseconds.
+
+```js
+require('hystrix-too-busy').init({
+    latencyThreshold: 70,
+    interval: 500,
+    smoothingFactor: 0.33,
+    circuitBreakerErrorThresholdPercentage: 50,
+    circuitBreakerForceClosed: false,
+    circuitBreakerForceOpened: false,
+    circuitBreakerRequestVolumeThreshold: 20,
+    circuitBreakerSleepWindowInMilliseconds: 5000,
+    requestVolumeRejectionThreshold: 0,
+    statisticalWindowNumberOfBuckets: 10,
+    statisticalWindowLength: 10000,
+    percentileWindowNumberOfBuckets: 6,
+    percentileWindowLength: 60000
+});
+```
