@@ -138,4 +138,26 @@ describe(__filename, () => {
             }));
         }));
     });
+
+    it('should use default config', next => {
+        Toobusy.deps.toobusy = () => true;
+        Toobusy.init({
+            default: {
+                // this will effectivly disable circuit breaker for the first 10 requests
+                circuitBreakerRequestVolumeThreshold: 1
+            }
+        });
+        Toobusy.getStatus('foo', busy => setImmediate(() => {
+            Assert.equal(false, busy);
+
+            Toobusy.getStatus('foo', busy => setImmediate(() => {
+                Assert.equal(true, busy);
+
+                Toobusy.getStatus('foo', busy => setImmediate(() => {
+                    Assert.equal(true, busy);
+                    next();
+                }));
+            }));
+        }));
+    });
 });
