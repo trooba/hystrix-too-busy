@@ -7,6 +7,7 @@ const circuitFactory = Hystrix.circuitFactory;
 const metricsFactory = Hystrix.metricsFactory;
 
 const GROUP = 'TooBusyGroup';
+const PREFIX = 'too-busy-';
 
 const toobusy = require('toobusy-js');
 Object.assign(module.exports, toobusy);
@@ -24,7 +25,9 @@ const DEFAULT_CONFIG = {
     percentileWindowLength: 60000 // optional
 };
 
-let tooBusyConfig = DEFAULT_CONFIG;
+let tooBusyConfig = {
+    default: DEFAULT_CONFIG
+};
 
 /*
   Too busy module lacks a floating window of observations over time which leads to false positives for
@@ -33,8 +36,13 @@ let tooBusyConfig = DEFAULT_CONFIG;
   The tresholds are controlled by hsyrtix command configuration.
   Now it will emit tooBusy only when the system accumulated many of them
 */
-module.exports.getStatus = function getStatus(callback) {
-    getCommand()
+module.exports.getStatus = function getStatus(name, callback) {
+    if (arguments.length === 1) {
+        callback = name;
+        name = undefined;
+    }
+
+    getCommand(name)
     .execute()
     .then(() => callback(false))
     .catch(err => {
@@ -46,11 +54,14 @@ module.exports.getStatus = function getStatus(callback) {
     });
 };
 
-function getCommand() {
+function getCommand(name) {
+    const commandName = PREFIX + (name || 'hystrix-command');
     const builder = commandFactory
-    .getOrCreate('too-busy-hystrix-command', GROUP);
+    .getOrCreate(commandName, GROUP);
 
-    builder.config = tooBusyConfig;
+    const commandConfig = tooBusyConfig.commands && tooBusyConfig.commands[name];
+    builder.config = commandConfig ||
+        tooBusyConfig.default;
 
     builder.run(function run() {
         return new Promise((resolve, reject) => {
@@ -83,7 +94,19 @@ module.exports.init = function init(config) {
 
     config = config || {};
 
-    tooBusyConfig = Object.assign(tooBusyConfig, config);
+    if (config.default) {
+        tooBusyConfig.default = Object.assign(tooBusyConfig.default,
+            config.default);
+    }
+
+    if (config.commands) {
+        tooBusyConfig.commands = tooBusyConfig.commands || {};
+        Object.keys(config.commands).forEach(name => {
+            tooBusyConfig.commands[name] =
+                Object.assign({}, tooBusyConfig.default,
+                    config.commands[name]);
+        });
+    }
 
     if (config.latencyThreshold) {
         module.exports.maxLag(config.latencyThreshold);

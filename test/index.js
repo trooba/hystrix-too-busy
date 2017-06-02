@@ -40,7 +40,9 @@ describe(__filename, () => {
     it('should indicate busy, toobusy:true, beyond threshold', next => {
         Toobusy.deps.toobusy = () => true;
         Toobusy.init({
-            circuitBreakerRequestVolumeThreshold: 1
+            default: {
+                circuitBreakerRequestVolumeThreshold: 1
+            }
         });
         Toobusy.getStatus(busy => setImmediate(() => {
             Assert.equal(false, busy);
@@ -59,8 +61,10 @@ describe(__filename, () => {
     it('should indicate busy and become free after sleep window passes', next => {
         Toobusy.deps.toobusy = () => true;
         Toobusy.init({
-            circuitBreakerRequestVolumeThreshold: 1,
-            circuitBreakerSleepWindowInMilliseconds: 20 //ms
+            default: {
+                circuitBreakerRequestVolumeThreshold: 1,
+                circuitBreakerSleepWindowInMilliseconds: 20 //ms
+            }
         });
 
         Async.series([
@@ -105,5 +109,33 @@ describe(__filename, () => {
         });
         Assert.equal(true, Toobusy.started());
         next();
+    });
+
+    it('should pick up config specific to command', next => {
+        Toobusy.deps.toobusy = () => true;
+        Toobusy.init({
+            default: {
+                // this will effectivly disable circuit breaker for the first 10 requests
+                circuitBreakerRequestVolumeThreshold: 10
+            },
+            commands: {
+                foo: {
+                    // this will effectivly enable circuit breaker starting from the first request
+                    circuitBreakerRequestVolumeThreshold: 1
+                }
+            }
+        });
+        Toobusy.getStatus('foo', busy => setImmediate(() => {
+            Assert.equal(false, busy);
+
+            Toobusy.getStatus('foo', busy => setImmediate(() => {
+                Assert.equal(true, busy);
+
+                Toobusy.getStatus('foo', busy => setImmediate(() => {
+                    Assert.equal(true, busy);
+                    next();
+                }));
+            }));
+        }));
     });
 });

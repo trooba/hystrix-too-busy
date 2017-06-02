@@ -9,11 +9,11 @@ Provides a back-pressure management based on hystrix command and too-busy module
 
 ### What is it?
 
-The importance of maintaining the stability of the system is hard to argue. There are many different techniques on how to achieve this. One of them is based on determining how busy the system based on a latency related to event loop by measuring between expected and actual when measure event happens.
+The importance of maintaining the stability of the system is hard to argue. There are many different techniques on how to achieve this. One of them is based on determining how busy the system based on a latency related to event loop by measuring between expected and actual time when measured timer event happens.
 
-One of the popular modules is [toobusy-js](https://www.npmjs.com/package/toobusy-js), but it does not work as expected and can generate false positives (busy signal) under relatively small load (20% CPU) due to GC or some other events. What was missing is a floating window of measurements over specific period of time which would provide better data to decide if the system is really busy.
+One of the popular modules is [toobusy-js](https://www.npmjs.com/package/toobusy-js), but it does not work as expected and can generate false positives (busy signal) under relatively small load (20% CPU) due to GC memory profile or an application logic. What was missing is a floating window of measurements over specific period of time; which would provide better data to decide if the system is really busy.
 
-[Hystrix](https://www.npmjs.com/package/hystrixjs) component provides implements a fail fast pattern on top of the statistics it collects and that makes it a perfect candidate to add to toobusy-js module to close the gap.
+[Hystrix](https://www.npmjs.com/package/hystrixjs) component provides a fail fast pattern on top of the statistics it collects and that makes it a perfect candidate to add to toobusy-js module to close this gap.
 
 The module defines a hystrix command that executes toobusy check and emits back an error which is used by hystrix to calculate number of errors towards circuit opening.
 
@@ -32,6 +32,11 @@ $ npm install hystrix-too-busy -S
 ```js
 require('hystrix-too-busy').getState(busy => {
     console.log('I am', busy ? 'busy' : 'free');
+})
+
+// or for specific command
+require('hystrix-too-busy').getState('fooCommand', busy => {
+    console.log(`fooCommand is ${busy ? 'busy' : 'free'}`);
 })
 ```
 
@@ -56,20 +61,48 @@ Since this module is based on both too-busy and hystrixjs you need to understand
     * percentileWindowNumberOfBuckets (default 6) defines a number of buckets to calculate percentile stats.
     * percentileWindowLength (default 60000) defines percentile window length in milliseconds.
 
+The default configuration used by the module:
 ```js
 require('hystrix-too-busy').init({
     latencyThreshold: 70,
     interval: 500,
     smoothingFactor: 0.33,
-    circuitBreakerErrorThresholdPercentage: 50,
-    circuitBreakerForceClosed: false,
-    circuitBreakerForceOpened: false,
-    circuitBreakerRequestVolumeThreshold: 20,
-    circuitBreakerSleepWindowInMilliseconds: 5000,
-    requestVolumeRejectionThreshold: 0,
-    statisticalWindowNumberOfBuckets: 10,
-    statisticalWindowLength: 10000,
-    percentileWindowNumberOfBuckets: 6,
-    percentileWindowLength: 60000
+    default: {
+        circuitBreakerErrorThresholdPercentage: 50,
+        circuitBreakerForceClosed: false,
+        circuitBreakerForceOpened: false,
+        circuitBreakerRequestVolumeThreshold: 20,
+        circuitBreakerSleepWindowInMilliseconds: 5000,
+        requestVolumeRejectionThreshold: 0,
+        statisticalWindowNumberOfBuckets: 10,
+        statisticalWindowLength: 10000,
+        percentileWindowNumberOfBuckets: 6,
+        percentileWindowLength: 60000
+    }
+});
+```
+
+#### Customizing behavior for toobusy module.
+
+Since the module is based on hystrix, we can re-use the command concept to provide different behavior of the circuit breaker. This can allow us to give priorities for some commands over the other, i.e. unimportant commands will get short circuited sooner than the more important ones.
+
+By default all calls to the module will be treated as a single command using default config.
+
+You can configure specific command and only what is different from default config. If some command config is not found, it will use default configuration.
+
+```js
+require('hystrix-too-busy').init({
+    latencyThreshold: 70,
+    interval: 500,
+    smoothingFactor: 0.33,
+    commands: {
+        fooCommand: {
+            circuitBreakerErrorThresholdPercentage: 80,
+            circuitBreakerRequestVolumeThreshold: 1
+        },
+        barCommand: {
+            circuitBreakerErrorThresholdPercentage: 30
+        }
+    }
 });
 ```
