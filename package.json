@@ -1,6 +1,6 @@
 {
   "name": "hystrix-too-busy",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Provides a backpressure management hystrix command partially based on too-busy module logic and utilizing hystrix metrics accumulation and circuit breaking",
   "main": "index.js",
   "scripts": {
