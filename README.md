@@ -7,6 +7,8 @@ Provides a back-pressure management based on hystrix command and too-busy module
 [![Downloads](https://img.shields.io/npm/dm/hystrix-too-busy.svg)](http://npm-stat.com/charts.html?package=hystrix-too-busy)
 [![Known Vulnerabilities](https://snyk.io/test/github/trooba/hystrix-too-busy/badge.svg)](https://snyk.io/test/github/trooba/hystrix-too-busy)
 
+![too-busy in action](docs/images/too-busy-movie.gif)
+
 ### What is it?
 
 The importance of maintaining the stability of the system is hard to argue. There are many different techniques on how to achieve this. One of them is based on determining how busy the system based on a latency related to event loop by measuring between expected and actual time when measured timer event happens.
