@@ -23,6 +23,8 @@ Once the circuit is open it will stay open till the next sleep window, which wil
 
 Since it is based on hystrix, it makes all the statistic available to [hystrix dashboard](https://github.com/dimichgh/hystrix-dashboard) and can be integrated into the same node app or plugged into standalone hystrix dashboard.
 
+For more details on this topic, please read these blog posts [Part 1](https://medium.com/@dimichmm/building-resilient-platform-part-1-51b852588fb3) and [Part 2](https://medium.com/@dimichmm/building-resilient-platform-part-2-509c9550617d).
+
 ### Install
 
 ```
