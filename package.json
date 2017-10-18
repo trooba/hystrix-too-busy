@@ -28,7 +28,7 @@
   "homepage": "https://github.com/trooba/hystrix-too-busy#readme",
   "dependencies": {
     "hystrixjs": "^0.2.0",
-    "rxjs": "^5.4.0",
+    "rxjs": "5.4.3",
     "toobusy-js": "^0.5.1"
   },
   "devDependencies": {
