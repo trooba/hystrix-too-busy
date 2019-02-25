@@ -34,7 +34,7 @@
   "devDependencies": {
     "async": "^2.4.1",
     "istanbul": "^0.4.5",
-    "mocha": "^5.0.0"
+    "mocha": "^6.0.2"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
